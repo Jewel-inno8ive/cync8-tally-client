@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+    <title>Cync8 Tally Sync</title>
+  </head>
+  <body>
+    <h2>Sync Setup</h2>
+    <form id="syncForm">
+      <label>API Key: <input type="text" id="apiKey" /></label><br />
+      <label>Org ID: <input type="text" id="organizationId" /></label><br />
+      <label>Software Id: <input type="text" id="softwareId" /></label><br />
+      <button type="submit">Start Sync</button>
+    </form>
+  
+    <h3>Synced Customers</h3>
+    <table id="dataTable" border="1" style="border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Customer Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>City</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="dataBody">
+        <!-- Data will go here -->
+      </tbody>
+    </table>
+  
+    <script src="renderer.js"></script>
+  </body>
+  
+  
+</html>
