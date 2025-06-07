@@ -1,5 +1,3 @@
-const { ipcRenderer } = require('electron');
-
 let currentData = [];
 let isConnected = false;
 
@@ -36,7 +34,7 @@ syncForm.addEventListener('submit', (e) => {
     
     startSync();
     
-    ipcRenderer.send('save-credentials', {
+    window.electronAPI.sendCredentials({
         apiKey,
         organizationId,
         softwareId
@@ -52,7 +50,7 @@ refreshButton.addEventListener('click', () => {
         
         if (apiKey && organizationId && softwareId) {
             startSync();
-            ipcRenderer.send('save-credentials', { apiKey, organizationId, softwareId });
+            window.electronAPI.sendCredentials({ apiKey, organizationId, softwareId });
         }
     }
 });
@@ -67,7 +65,7 @@ function startSync() {
 }
 
 // Handle successful sync
-ipcRenderer.on('synced-data', (event, customers) => {
+window.electronAPI.onSyncedData((customers) => {
     console.log('Received synced data:', customers);
     
     loadingSpinner.style.display = 'none';
@@ -91,7 +89,7 @@ ipcRenderer.on('synced-data', (event, customers) => {
 });
 
 // Handle sync errors
-ipcRenderer.on('sync-error', (event, error) => {
+window.electronAPI.onSyncError((error) => {
     console.error('Sync error:', error);
     
     loadingSpinner.style.display = 'none';
@@ -103,7 +101,7 @@ ipcRenderer.on('sync-error', (event, error) => {
 });
 
 // Handle credentials saved
-ipcRenderer.on('credentials-saved', () => {
+window.electronAPI.onCredentialsSaved(() => {
     console.log('Credentials saved successfully');
 });
 

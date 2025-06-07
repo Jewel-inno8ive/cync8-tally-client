@@ -1,46 +1,35 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const keytar = require('keytar');
+import { app, BrowserWindow, ipcMain } from 'electron';
+import keytar from 'keytar';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import syncCustomers from './src/services/customer-sync-service.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function createWindow() {
   const win = new BrowserWindow({
+    width: 800,
+    height: 600,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    }
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
-  win.loadFile('renderer/index.html');
-}
 
+  win.loadFile(path.join(__dirname, 'src/renderer/index.html'));
+  console.log('App started')
+}
 app.whenReady().then(createWindow);
 
-// Securely store API key/org ID
-ipcMain.on('save-credentials', async (event, { apiKey, organizationId,softwareId }) => {
+ipcMain.on('save-credentials', async (event, { apiKey, organizationId, softwareId }) => {
+  console.log("ipc")
   await keytar.setPassword('Cync8SyncApp', 'apiKey', apiKey);
   await keytar.setPassword('Cync8SyncApp', 'organizationId', organizationId);
   await keytar.setPassword('Cync8SyncApp', 'softwareId', softwareId);
   event.reply('credentials-saved');
   console.log('Credentials stored securely.');
 
-  // Start sync
-  startSync(apiKey, organizationId, softwareId);
+  syncCustomers(BrowserWindow, apiKey, organizationId, softwareId);
 });
-
-const axios = require('axios');
-
-async function startSync(apiKey, organizationId, softwareId) {
-  try {
-    const result = await axios.get('http://20.2.90.36:3000/api/third-party/get-all-customers', {
-      headers: { apiKey, organizationId, softwareId }
-    });
-
-    console.log('Synced:', result.data);
-
-    // Send data to renderer
-    const win = BrowserWindow.getAllWindows()[0];
-    win.webContents.send('synced-data', result.data.data); // <-- send only the array
-  } catch (error) {
-    console.error('Sync failed:', error.message);
-  }
-}
-
-
